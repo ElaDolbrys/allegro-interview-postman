@@ -1,0 +1,764 @@
+{
+	"info": {
+		"_postman_id": "b9dbd013-58f5-0bd8-bb5e-e12558a6c767",
+		"name": "JSONPlaceholder",
+		"description": "Aim of this collection is to check endpoints of posts and comments.\n\nMain objectives:\n- request with metod GET ends with status code 200,\n- request with metod POST ends with status code 201,\n- request with metod PUT ends with status code 200,\n- request with metod DELETE ends with status code 200,\n- request with metod PATCH ends with status code 200,\n- responses are less than 1s,\n- after whole end2end test number of data is not changed (it may vary during tests).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Posts - end2end test",
+			"description": "The aim of test is to check main API endpoints of post from https://jsonplaceholder.typicode.com/.",
+			"item": [
+				{
+					"name": "Get number of posts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2a85ec38-341b-419b-9d24-c04e3ab388e9",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"initialNumberOfPosts\", jsonData.length);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts"
+							]
+						},
+						"description": "Gets number of post and saves it for further comparison."
+					},
+					"response": []
+				},
+				{
+					"name": "Add new post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f2c28819-e111-4111-9290-2c9a1ae5d9b7",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newPostId\", jsonData.id);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": 1,\r\n  \"title\": \"Title of new post created for testing purposes\",\r\n  \"body\": \"AAAAA\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts"
+							]
+						},
+						"description": "Adds new post. Captures id of new post and saves it to be used in next step."
+					},
+					"response": []
+				},
+				{
+					"name": "Get new post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ddcd2b99-771e-4823-9f2d-42ee1e751ef7",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{newPostId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"{{newPostId}}"
+							]
+						},
+						"description": "Gets new post (based on id from global variable)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get new number of posts after addition",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17a4520f-24af-4817-a5a4-0231e861c14d",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newNumberOfPosts\", jsonData.length);",
+									"",
+									"pm.test(\"Number of post increased by one\", function () {",
+									"   pm.expect(Math.floor(pm.environment.get('newNumberOfPosts'))).to.equal(Math.floor(pm.environment.get('initialNumberOfPosts'))+1);",
+									"});",
+									"",
+									"pm.globals.unset(\"newNumberOfPosts\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts"
+							]
+						},
+						"description": "Counts new number of posts and compares is to initial number."
+					},
+					"response": []
+				},
+				{
+					"name": "Update new post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9dcd2409-0d0d-442d-9f89-456a013b87fc",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Title has been updated\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"ela\");",
+									"});",
+									"",
+									"pm.test(\"Body has been updated\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"olbrys\");",
+									"});",
+									"",
+									"pm.test(\"User has been updated\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"1\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"id\": \"{{newPostId}}\",\r\n      \"title\": \"ela\",\r\n      \"body\": \"ela olbrys\",\r\n      \"userId\": 1\r\n    }\r\n    \r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{newPostId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"{{newPostId}}"
+							]
+						},
+						"description": "Upades existing post."
+					},
+					"response": []
+				},
+				{
+					"name": "Change title of new post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "765f517f-25b8-4f05-9581-6736d6ba1e92",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Title has been updated\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"This is new title\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"This is new title\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{newPostId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"{{newPostId}}"
+							]
+						},
+						"description": "Updates title of existing post and checks title."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete new post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "73081a37-c885-4d50-89ff-e561abef3cc4",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts/{{newPostId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"{{newPostId}}"
+							]
+						},
+						"description": "Deletes post added during \"Post - ened2end test\"."
+					},
+					"response": []
+				},
+				{
+					"name": "Get new number of all posts after removing post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "36217539-c083-4c7d-aa0e-7eec4a18710a",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newNumberOfPosts\", jsonData.length);",
+									"",
+									"pm.test(\"Number of post is the same as before tests\", function () {",
+									"   pm.expect(Math.floor(pm.environment.get('newNumberOfPosts'))).to.equal(Math.floor(pm.environment.get('initialNumberOfPosts')));",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts"
+							]
+						},
+						"description": "Counts number of posts and compares it to initial number."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8eea88ee-9d23-4e47-8bd0-4cc6209a81d9",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1fbfa38c-475e-47d4-bdfb-895d4d0ddfb6",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments - end2end test",
+			"description": "The aim of test is to check main API endpoints of comments from https://jsonplaceholder.typicode.com/.",
+			"item": [
+				{
+					"name": "Get number of comments of first post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f2d75369-6bd3-4459-9513-0dd664330dd2",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"initialNumberOfCommentsOfFirstPost\", jsonData.length);",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/posts/1/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"1",
+								"comments"
+							]
+						},
+						"description": "Gets number of comments of first post and saves it for further comparison."
+					},
+					"response": []
+				},
+				{
+					"name": "Get number of all comments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ff425b9f-6de9-48f5-8436-fa3af4ed947d",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"initialNumberOfComments\", jsonData.length);",
+									"",
+									"",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments"
+							]
+						},
+						"description": "Gets number of all comments and saves it for further comparison."
+					},
+					"response": []
+				},
+				{
+					"name": "Add new comment to first post",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e949fa14-e837-43a5-931c-2d8e4f3e31a7",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newCommentId\", jsonData.id);",
+									"",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postId\": 1,\r\n    \"name\": \"New comment\",\r\n    \"email\": \"dobrzynska.ela@gmail.com\",\r\n    \"body\": \"est natus enim nihil est dolore omnis voluptatem numquam\\net omnis occaecati quod ullam at\\nvoluptatem error expedita pariatur\\nnihil sint nostrum voluptatem reiciendis et\"\r\n  }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/posts/1/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"posts",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get number of comments after addition",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1dbec239-fd65-48b8-82a0-160c3f2433dd",
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newNumberOfComments\", jsonData.length);",
+									"",
+									"pm.test(\"Number of comments increased by one\", function () {",
+									"   pm.expect(Math.floor(pm.environment.get('newNumberOfComments'))).to.equal(Math.floor(pm.environment.get('initialNumberOfComments'))+1);",
+									"});",
+									"",
+									"",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments"
+							]
+						},
+						"description": "Counts number of comments after addition of new one and compares is to initial number."
+					},
+					"response": []
+				},
+				{
+					"name": "Update new comment ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "774b3e7c-4e50-4887-addb-9debd938401c",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postId\": 1,\r\n    \"id\": {{newCommentId}},\r\n    \"name\": \"quo vero reiciendis velit similique earum\",\r\n    \"email\": \"upadeOfMail@gmail.com\",\r\n    \"body\": \"est natus enim nihil est dolore omnis voluptatem numquam\\net omnis occaecati quod ullam at\\nvoluptatem error expedita pariatur\\nnihil sint nostrum voluptatem reiciendis et\"\r\n  }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{newCommentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments",
+								"{{newCommentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Changes email of comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "394a2cbc-c30c-4b32-9790-5d3be03d3da4",
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"",
+									"pm.test(\"Mail adress has been updated\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"upadeOfMail@gmail.com\");",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"email\": \"upadeOfMail@gmail.com\"\r\n  }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{newCommentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments",
+								"{{newCommentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete new comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "53805204-7e48-4a55-8f67-24a83f6f4302",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{newCommentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments",
+								"{{newCommentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get new number of all comments after removing comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bbd756c4-72e0-4608-b88c-4fbe6d998359",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"newNumberOfComments\", jsonData.length);",
+									"",
+									"pm.test(\"Number of comments is the same as before tests\", function () {",
+									"   pm.expect(Math.floor(pm.environment.get('newNumberOfComments'))).to.equal(Math.floor(pm.environment.get('initialNumberOfComments')));",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{baseUrl}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"comments"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "28171544-92dc-4116-970e-c7994fd9eca2",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "10f3b16e-2ab6-4efa-b1ef-ecbb6911ab4f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "52c921f4-99b4-49d3-9695-a5e62f85561e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c6ddf50a-e091-4939-b3b7-0e57a59a2690",
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Response time is less than 1s\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "c93f9970-f84b-4f02-9cbd-09762709dbb3",
+			"key": "lastPostId",
+			"value": "1001",
+			"type": "string",
+			"description": ""
+		}
+	]
+}
