@@ -11,5 +11,5 @@ I added two env files - one with basic env and the other one with local env.
 
 To set local env.:
 1. npm install -g json-server
-2. downloand db.jso file from this repository 
+2. downloand db.json file from this repository 
 3. json-server --watch db.json
